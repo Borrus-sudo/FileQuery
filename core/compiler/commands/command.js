@@ -12,7 +12,7 @@ const commands = {
     },
     "CreateCommand": {
         execute(data) {
-            console.log("Create Command Called");
+            console.log(data);
         }
     },
     "SetCommand": {
