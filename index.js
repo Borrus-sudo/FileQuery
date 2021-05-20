@@ -1,11 +1,9 @@
 #!/usr/bin/env node
 
 //Dependencies
-const exec = require("child_process").exec;
-const fs = require("fs");
 const parser = require("./core/parser");
 const {
-    handler,
+    commmandHandler: handler,
     commands
 } = require("./core/compiler");
 

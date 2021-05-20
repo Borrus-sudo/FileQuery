@@ -1,9 +1,12 @@
+const storage = require("../../storage");
 const commands = {
     "IntroduceCommand" (data) {
         console.log(`Hi I am FileQuery to help you manage you files seemlessly`);
     },
-    "Error" (data) {
-        console.log(data.errorMessage);
+    "Error": {
+        execute(data) {
+            console.log(data.errorMessage);
+        },
     },
     "CreateCommand" (data) {
 
@@ -11,30 +14,30 @@ const commands = {
     "SetCommand": {
         execute(data) {
             const result = this.validator(data.command, ...data.pairs);
-            if (result.value) {
+            if (result.isValid) {
                 console.log("Command Execution Code");
             } else {
-                commmandHandler(result.errorFST)
+                commands[result.errorNode.type].execute(result.errorNode);
             };
         },
         validator(command, ...pairs) {
-            const tokens = ["curr_dir"];
+            const tokens = ["curr_dir", "alias"];
             for (let pair of pairs) {
                 if (!tokens.includes(pair.key.toLowerCase())) {
-                    const errorFST = {
+                    const errorNode = {
                         type: "Error",
                         kind: "InvalidArgumentName",
                         errorMessage: `Invalid argument ${pair.key} provided to the command ${command}`
                     };
                     return {
-                        value: false,
-                        errorFST
+                        isValid: false,
+                        errorNode
                     }
                 }
             }
             return {
-                value: true,
-                errorFST: null
+                isValid: true,
+                errorNode: null
             }
         }
     },

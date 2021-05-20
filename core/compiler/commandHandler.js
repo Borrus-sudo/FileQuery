@@ -1,4 +1,5 @@
  function commmandHandler(node, commands) {
-     commands[node.type](node);
+     const command = commands[node.type];
+     command.execute(node)
  }
  module.exports = commmandHandler
