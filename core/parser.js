@@ -8,7 +8,6 @@ function parser(command) {
             if (commandArr.lastIndexOf(']') === commandArr.length - 1 && commandArr[0] != '[') {
                 const startPos = commandArr.indexOf('[');
                 const prefix = command.split('[')[0];
-                console.log(prefix);
                 let endPos = 'none';
                 commandArr.forEach((elem, i) => {
                     if (elem === ']' && (commandArr[i + 1] === '[' || typeof commandArr[i + 1] === 'undefined')) {
@@ -17,9 +16,7 @@ function parser(command) {
                 });
                 if (endPos != "none") {
                     let rpart = commandArr.slice(startPos + 1, endPos).join ``.split `,`.map((elem) => '/' + prefix + '/' + elem);
-                    return {
-                        rpart
-                    };
+                    return rpart;
                 } else {
                     return simplyAdd;
                 }
@@ -27,7 +24,6 @@ function parser(command) {
 
         }
         return simplyAdd;
-
     }
     switch (command[0]) {
         case "introduce":

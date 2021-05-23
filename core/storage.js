@@ -11,13 +11,14 @@ switch (os.platform()) {
         break;
 
     default:
+        dotFileLocation = "none";
         break;
 }
 //Default Stuff for updating options or creating a dotfile with default options if none created 
 (() => {
     const checkPurity = (obj) => {
         for (let property in options) {
-            if (!`${property}` in obj) {
+            if (!obj.hasOwnProperty(property)) {
                 return false;
             }
         }
@@ -35,10 +36,10 @@ switch (os.platform()) {
             const defaults = JSON.stringify(options, null, 2);
             fs.writeFileSync(dotFileLocation, defaults);
         } else {
-            if (checkPurity(dotFileConfig)) {
+            if (checkPurity(JSON.parse(dotFileConfig))) {
                 options = JSON.parse(dotFileConfig);
             } else {
-                console.log("Looks like the dotfile has been corrupted.Do you want it to be ");
+                console.log("Looks like the dotfile has been corrupted.Delete the entire file to get the defaults again.But in doing so all the current config will be lost ");
             }
         }
     }
