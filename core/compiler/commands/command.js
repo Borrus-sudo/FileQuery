@@ -1,8 +1,9 @@
 const storage = require("../../storage");
+const fs = require("fs");
 const commands = {
     "IntroduceCommand": {
         execute(data) {
-            console.log(`Hi I am FileQuery to help you manage you files seemlessly`);
+            console.log(data.message);
         }
     },
     "Error": {
@@ -17,6 +18,7 @@ const commands = {
     },
     "SetCommand": {
         execute(data) {
+
             console.log(data);
         },
     },
