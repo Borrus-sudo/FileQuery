@@ -13,6 +13,6 @@ const cwd = process.cwd();
 command.splice(0, 2);
 const arguments = (command.length == 0 ? undefined : command);
 
-//Execution Code
+//Executing Event Code
 const handle = parser(arguments);
 handler(handle, commands);
