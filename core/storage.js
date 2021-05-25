@@ -3,7 +3,7 @@ const os = require("os");
 let dotFileLocation;
 let options = {
     "curr_dir": "None set",
-    "aliases": []
+    "alias": []
 };
 switch (os.platform()) {
     case "win32":
@@ -47,7 +47,7 @@ switch (os.platform()) {
 module.exports = {
     updateOptions(propertyName, newValue) {
         options[propertyName] = newValue;
-        const updatedConfig = JSON.stringify(options);
+        const updatedConfig = JSON.stringify(options, null, 2);
         fs.writeFileSync(dotFileLocation, updatedConfig)
     },
     returnOptions(propertyName) {

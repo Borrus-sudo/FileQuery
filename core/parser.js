@@ -1,5 +1,8 @@
+const storage = require("./storage");
+
 function parser(command) {
     command = command || ["introduce"];
+    const cwd = process.cwd();
 
     function resolveArraySyntax(command) {
         let commandArr = [...command];
@@ -25,12 +28,26 @@ function parser(command) {
         }
         return simplyAdd;
     }
+
+    function resolveSpecialTokens(tokens) {
+        tokens = tokens.map((token) => {
+            switch (token) {
+                case "./":
+                    return cwd;
+                default:
+                    return token;
+            }
+        });
+        return tokens;
+    }
     switch (command[0]) {
         case "introduce":
-            return {
-                type: "IntroduceCommand",
-                command: command[0],
-                message: `Hi I am FileQuery to help you manage you files seemlessly `,
+            {
+                return {
+                    type: "IntroduceCommand",
+                    command: command[0],
+                    message: `Hi I am FileQuery to help you manage you files seemlessly `,
+                }
             }
         case "set":
             {
@@ -59,7 +76,21 @@ function parser(command) {
                             errorMessage: `No argument provided to the ${ pair.key }command `
                         }
                     }
-                    if (!tokens.includes(pair.key)) {;
+                    if (pair.key === "alias") {
+                        if (!pair.value.includes("-")) {
+                            return {
+                                type: "Error",
+                                kind: "InvalidArgument",
+                                errorMessage: "Invalid argument provided to the alias command. Missing the '-'"
+                            }
+                        } else {
+                            const parts = pair.value.split('-');
+                            pair.value = resolveSpecialTokens(parts).join `-`;
+                        }
+                    } else {
+                        pair.value = resolveSpecialTokens([pair.value])[0];
+                    }
+                    if (!tokens.includes(pair.key)) {
                         return {
                             type: "Error",
                             kind: "InvalidArgumentName",
@@ -82,7 +113,7 @@ function parser(command) {
             {
                 const directories = [];
                 let via = 'none';
-                let baseDirectory = process.cwd();
+                let baseDirectory = cwd;
                 const tokens = ["via", "in"];
                 if (command[1] === "via") {
                     return {
@@ -146,4 +177,4 @@ function parser(command) {
             }
     }
 }
-module.exports = parser
+module.exports = parser;

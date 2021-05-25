@@ -18,8 +18,11 @@ const commands = {
     },
     "SetCommand": {
         execute(data) {
-
-            console.log(data);
+            const pairs = data.pairs;
+            for (const pair of pairs) {
+                storage.updateOptions(pair.key, pair.value);
+            }
+            console.log(`Operation completed successfully`);
         },
     },
     "SelectCommand": {
