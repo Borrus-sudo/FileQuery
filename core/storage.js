@@ -51,7 +51,7 @@ module.exports = {
         const updatedConfig = JSON.stringify(options, null, 2);
         fs.writeFileSync(dotFileLocation, updatedConfig)
     },
-    returnOptions(propertyName) {
+    returnOption(propertyName) {
         return options[propertyName]
     }
 }

@@ -34,6 +34,8 @@ function parser(command) {
             switch (token) {
                 case "./":
                     return cwd;
+                case "curr_dir":
+                    return storage.returnOption("curr_dir");
                 default:
                     return token;
             }
@@ -76,6 +78,17 @@ function parser(command) {
                             errorMessage: `No argument provided to the ${ pair.key }command `
                         }
                     }
+                    if (!tokens.includes(pair.key)) {
+                        return {
+                            type: "Error",
+                            kind: "InvalidArgumentName",
+                            command: command[0],
+                            errorMessage: `
+                            Invalid argument ${ pair.key }provided to the command ${ command }
+                            `
+                        }
+
+                    }
                     if (pair.key === "alias") {
                         if (!pair.value.includes("-")) {
                             return {
@@ -89,17 +102,6 @@ function parser(command) {
                         }
                     } else {
                         pair.value = resolveSpecialTokens([pair.value])[0];
-                    }
-                    if (!tokens.includes(pair.key)) {
-                        return {
-                            type: "Error",
-                            kind: "InvalidArgumentName",
-                            command: command[0],
-                            errorMessage: `
-                            Invalid argument ${ pair.key }provided to the command ${ command }
-                            `
-                        }
-
                     }
                     pairs.push(pair);
                 }
