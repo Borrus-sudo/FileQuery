@@ -36,8 +36,9 @@ switch (os.platform()) {
             const defaults = JSON.stringify(options, null, 2);
             fs.writeFileSync(dotFileLocation, defaults);
         } else {
-            if (checkPurity(JSON.parse(dotFileConfig))) {
-                options = JSON.parse(dotFileConfig);
+            const parsedConfig = JSON.parse(dotFileConfig);
+            if (checkPurity(parsedConfig)) {
+                options = parsedConfig;
             } else {
                 console.log("Looks like the dotfile has been corrupted.Delete the entire file to get the defaults again.But in doing so all the current config will be lost ");
             }

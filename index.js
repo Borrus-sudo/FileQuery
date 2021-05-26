@@ -9,7 +9,6 @@ const {
 
 //Options initializing
 const command = process.argv;
-const cwd = process.cwd();
 command.splice(0, 2);
 const arguments = (command.length == 0 ? undefined : command);
 
