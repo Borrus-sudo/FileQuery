@@ -18,7 +18,8 @@ function parser(command) {
                     }
                 });
                 if (endPos != "none") {
-                    let rpart = commandArr.slice(startPos + 1, endPos).join ``.split `,`.map((elem) => '/' + prefix + '/' + elem);
+                    let rpart = commandArr.slice(startPos + 1, endPos).join ``.split `,`.map((elem) => prefix + '/' + elem);
+                    rpart.unshift(prefix);
                     return rpart;
                 } else {
                     return simplyAdd;
@@ -129,12 +130,14 @@ function parser(command) {
                         //Check for array like directories
                         const result = resolveArraySyntax(command[i]);
                         if (result === "SimplyAdd") {
+                            command[i] = resolveSpecialTokens([command[i]])[0];
                             directories.push(command[i]);
                         } else {
-                            directories.push(...result);
+                            const toPush = resolveSpecialTokens(result);
+                            directories.push(...toPush);
                         }
                     } else {
-                        if (command[i] === tokens[0]) {
+                        if (command[i].toLowerCase() === tokens[0]) {
                             via = command[i + 1] || "Error";
                             if (via === "Error") {
                                 return {
@@ -146,6 +149,7 @@ function parser(command) {
                             }
                         } else {
                             baseDirectory = command[i + 1] || "Error";
+                            baseDirectory = resolveSpecialTokens([baseDirectory])[0];
                             if (baseDirectory === "Error") {
                                 return {
                                     type: "Error",
@@ -158,6 +162,7 @@ function parser(command) {
                         i++;
                     }
                 }
+                directories.filter((directory, index) => directories.indexOf(directory) === index);
                 return {
                     type: "CreateCommand",
                     command: command[0],
@@ -169,6 +174,11 @@ function parser(command) {
         case "select":
             return {
                 type: "SelectCommand"
+            }
+        case "cv":
+
+            return {
+                type: "CopyPasteCommand"
             }
         default:
             return {
