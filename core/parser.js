@@ -156,7 +156,6 @@ function parser(command) {
                             }
                         } else {
                             baseDirectory = command[i + 1] || "Error";
-                            baseDirectory = resolveSpecialTokens([baseDirectory])[0];
                             if (baseDirectory === "Error") {
                                 return {
                                     type: "Error",
@@ -165,6 +164,7 @@ function parser(command) {
                                     errorMessage: `No argument provided to the ${ command[i] }command `
                                 }
                             }
+                            baseDirectory = resolveSpecialTokens([baseDirectory])[0];
                         }
                         i++;
                     }
@@ -184,8 +184,9 @@ function parser(command) {
             }
         case "cv":
             const directories = [];
-            const baseDirectory = cwd;
-            const tokens = ["in"];
+            let baseDirectory = cwd;
+            const tokens = ["in", "to"];
+            let to = "none";
             if (command.length < 2) {
                 return {
                     type: "Error",
@@ -195,21 +196,55 @@ function parser(command) {
                 }
             }
             for (let i = 1; i < command.length; i++) {
-                const result = resolveArraySyntax(command[i]);
-                if (result === "SimplyAdd") {
-                    command[i] = resolveSpecialTokens([command[i]])[0];
-                    directories.push(result);
+                if (!tokens.includes(command[i].toLowerCase())) {
+                    const result = resolveArraySyntax(command[i]);
+                    if (result === "SimplyAdd") {
+                        command[i] = resolveSpecialTokens([command[i]])[0];
+                        directories.push(result);
+                    } else {
+                        result.splice(0, 1);
+                        const toPush = resolveSpecialTokens(result);
+                        directories.push(...toPush);
+                    }
                 } else {
-                    result.splice(0, 1);
-                    const toPush = resolveSpecialTokens(result);
-                    directories.push(...toPush);
+                    if (command[i].toLowerCase() === tokens[0]) {
+                        baseDirectory = command[i + 1] || "Error";
+                        if (baseDirectory === "Error") {
+                            return {
+                                type: "Error",
+                                kind: "InvalidNumberofArguments",
+                                command: command[0],
+                                errorMessage: `No argument provided to the ${command[i]}command `
+                            }
+                        }
+                        baseDirectory = resolveSpecialTokens([baseDirectory])[0];
+                    } else {
+                        to = command[i + 1] || "Error";
+                        if (to === "Error") {
+                            return {
+                                type: "Error",
+                                kind: "InvalidNumberofArguments",
+                                command: command[0],
+                                errorMessage: `No argument provided to the ${command[i]}command `
+                            }
+                        }
+                        to = resolveSpecialTokens([to])[0];
+                    }
                 }
-
+            }
+            if (to === "none") {
+                return {
+                    type: "Error",
+                    kind: "InvalidNumberofArguments",
+                    command: command[0],
+                    errorMessage: `No argument provided to the ${command[i]}command `
+                }
             }
             return {
                 type: "CopyPasteCommand",
                 directories,
-                baseDirectory
+                baseDirectory,
+                to
             }
         default:
             return {
