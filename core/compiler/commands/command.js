@@ -115,7 +115,7 @@ const commands = {
                 if (fs.existsSync(from)) {
                     if (fs.existsSync(data.to)) {
                         if (fs.statSync(from).isFile())
-                            fs.copyFileSync(resolvedPath, path.resolve(data.to, directory));
+                            fs.copyFileSync(resolvedPath, to);
                         else
                             copydir.sync(from, to, {
                                 utimes: true,
