@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const ask = require("inquirer");
 const exec = require("child_process").execSync;
+const copydir = require('copy-dir');
 const colors = require("colors");
 const removeDirectory = (path) => {
     if (fs.existsSync(path)) {
@@ -17,6 +18,20 @@ const removeDirectory = (path) => {
     }
     fs.rmdirSync(path);
 }
+
+
+const introHeading = String.raw `
+ _______ _________ _        _______    _______           _______  _______          
+(  ____ \\__   __/( \      (  ____ \  (  ___  )|\     /|(  ____ \(  ____ )|\     /|
+| (    \/   ) (   | (      | (    \/  | (   ) || )   ( || (    \/| (    )|( \   / )
+| (__       | |   | |      | (__      | |   | || |   | || (__    | (____)| \ (_) / 
+|  __)      | |   | |      |  __)     | |   | || |   | ||  __)   |     __)  \   /  
+| (         | |   | |      | (        | | /\| || |   | || (      | (\ (      ) (   
+| )      ___) (___| (____/\| (____/\  | (_\ \ || (___) || (____/\| ) \ \__   | |   
+|/       \_______/(_______/(_______/  (____\/_)(_______)(_______/|/   \__/   \_/   
+                                                                                   
+`;
+
 colors.setTheme({
     info: 'bgGreen',
     help: 'cyan',
@@ -27,17 +42,7 @@ colors.setTheme({
 const commands = {
     "IntroduceCommand": {
         execute(data) {
-            console.log(`
- _______ _________ _        _______    _______           _______  _______          
-(  ____ \\__   __/( \      (  ____ \  (  ___  )|\     /|(  ____ \(  ____ )|\     /|
-| (    \/   ) (   | (      | (    \/  | (   ) || )   ( || (    \/| (    )|( \   / )
-| (__       | |   | |      | (__      | |   | || |   | || (__    | (____)| \ (_) / 
-|  __)      | |   | |      |  __)     | |   | || |   | ||  __)   |     __)  \   /  
-| (         | |   | |      | (        | | /\| || |   | || (      | (\ (      ) (   
-| )      ___) (___| (____/\| (____/\  | (_\ \ || (___) || (____/\| ) \ \__   | |   
-|/       \_______/(_______/(_______/  (____\/_)(_______)(_______/|/   \__/   \_/   
-                                                                                   
-`);
+            console.log(introHeading);
             console.log(data.message);
         }
     },
@@ -50,7 +55,7 @@ const commands = {
         async execute(data) {
             const isFileRegex = /(.*?)\.(.*?)$/;
             for (let directory of data.directories) {
-                const resolvedPath = path.join(data.baseDirectory, directory);
+                const resolvedPath = path.resolve(data.baseDirectory, directory);
                 if (!fs.existsSync(directory)) {
                     if (isFileRegex.test(resolvedPath)) {
                         fs.writeFileSync(resolvedPath, "");
@@ -105,14 +110,23 @@ const commands = {
         execute(data) {
             let isError = false;
             for (let directory of data.directories) {
-                const resolvedPath = path.join(data.baseDirectory, directory);
-                if (fs.existsSync(resolvedPath)) {
-                    if (fs.existsSync(directory))
-                        fs.copyFileSync(resolvedPath, path.resolve(data.to, directory));
-                    else
-                        console.log(("The directory " + resolvedPath + " does not exist").error);
+                const from = path.resolve(data.baseDirectory, directory);
+                const to = path.resolve(data.to, directory);
+                if (fs.existsSync(from)) {
+                    if (fs.existsSync(data.to)) {
+                        if (fs.statSync(from).isFile())
+                            fs.copyFileSync(resolvedPath, path.resolve(data.to, directory));
+                        else
+                            copydir.sync(from, to, {
+                                utimes: true,
+                                mode: true,
+                                cover: true
+                            });
+                    } else {
+                        console.log(("The directory " + to + " does not exist").error);
+                    }
                 } else {
-                    console.log(("The directory " + resolvedPath + " does not exist").error);
+                    console.log(("The directory " + from + " does not exist").error);
                 }
             }
             if (!isError)

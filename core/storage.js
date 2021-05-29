@@ -1,6 +1,6 @@
 const fs = require("fs");
-const os = require("os");
-const dotFileLocation = path.join(process.env.HOME, '.file-query')
+const path = require("path");
+const dotFileLocation = path.resolve(process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'], '.file-query')
 let options = {
     "curr_dir": "None set",
     "alias": []
