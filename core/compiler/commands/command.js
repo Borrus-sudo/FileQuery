@@ -82,6 +82,11 @@ const commands = {
             console.log(`Operation completed successfully`);
         },
     },
+    "CopyPasteCommand": {
+        execute(data) {
+            console.log(data);
+        }
+    },
     "SelectCommand": {
         execute(data) {
             console.log("Select Command Called");

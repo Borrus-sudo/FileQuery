@@ -47,7 +47,10 @@ switch (os.platform()) {
 })();
 module.exports = {
     updateOptions(propertyName, newValue) {
-        options[propertyName] = newValue;
+        if (propertyName === "curr_dir")
+            options[propertyName] = newValue;
+        else
+            options[propertyName].push(newValue);
         const updatedConfig = JSON.stringify(options, null, 2);
         fs.writeFileSync(dotFileLocation, updatedConfig)
     },

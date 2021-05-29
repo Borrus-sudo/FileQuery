@@ -38,7 +38,14 @@ function parser(command) {
                 case "curr_dir":
                     return storage.returnOption("curr_dir");
                 default:
-                    return token;
+                    let toReturn = token;
+                    const alisases = (storage.returnOption("alias") || []).map(alias => alias.split("-").reverse());
+                    alisases.forEach(([elem, directory]) => {
+                        if (token === elem) {
+                            toReturn = directory;
+                        }
+                    });
+                    return toReturn;
             }
         });
         return tokens;
@@ -177,7 +184,9 @@ function parser(command) {
             }
         case "cv":
             const directories = [];
-            if (command.length < 3) {
+            const baseDirectory = cwd;
+            const tokens = ["in"];
+            if (command.length < 2) {
                 return {
                     type: "Error",
                     kind: "InvalidNumberOfArguments",
@@ -199,7 +208,8 @@ function parser(command) {
             }
             return {
                 type: "CopyPasteCommand",
-                directories
+                directories,
+                baseDirectory
             }
         default:
             return {
