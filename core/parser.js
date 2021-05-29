@@ -200,7 +200,7 @@ function parser(command) {
                     const result = resolveArraySyntax(command[i]);
                     if (result === "SimplyAdd") {
                         command[i] = resolveSpecialTokens([command[i]])[0];
-                        directories.push(result);
+                        directories.push(command[i]);
                     } else {
                         result.splice(0, 1);
                         const toPush = resolveSpecialTokens(result);
@@ -230,6 +230,7 @@ function parser(command) {
                         }
                         to = resolveSpecialTokens([to])[0];
                     }
+                    i++;
                 }
             }
             if (to === "none") {
