@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const ask = require("inquirer");
 const exec = require("child_process").execSync;
+const colors = require("colors");
 const removeDirectory = (path) => {
     if (fs.existsSync(path)) {
         const files = fs.readdirSync(path) || [];
@@ -16,6 +17,13 @@ const removeDirectory = (path) => {
     }
     fs.rmdirSync(path);
 }
+colors.setTheme({
+    info: 'bgGreen',
+    help: 'cyan',
+    warn: 'yellow',
+    success: 'bgBlue',
+    error: 'red'
+});
 const commands = {
     "IntroduceCommand": {
         execute(data) {
@@ -70,7 +78,7 @@ const commands = {
             }
             if (data.via != "none") {
                 if (data.via === "code")
-                    exec(`code .`, (error, stdout, stderr) => {
+                    exec(`code .`, data.baseDirectory, (error, stdout, stderr) => {
                         if (error) {
                             console.log(`An error occured: ${error.message}`);
                             return;
@@ -95,12 +103,31 @@ const commands = {
     },
     "CopyPasteCommand": {
         execute(data) {
-            console.log(data);
+            let isError = false;
+            for (let directory of data.directories) {
+                const resolvedPath = path.resolve(data.baseDirectory, directory);
+                if (fs.existsSync(resolvedPath)) {
+                    if (fs.existsSync(directory))
+                        fs.copyFileSync(resolvedPath, path.resolve(data.to, directory));
+                    else
+                        console.log(("The directory " + resolvedPath + " does not exist").error);
+                } else {
+                    console.log(("The directory " + resolvedPath + " does not exist").error);
+                }
+            }
+            if (!isError)
+                console.log("Operation successfully finished".success);
         }
     },
     "SelectCommand": {
         execute(data) {
             console.log("Select Command Called");
+        }
+    },
+    "ReturnConfigCommand": {
+        execute(data) {
+            console.log(JSON.stringify(storage.returnConfig(), null, 2));
+            console.log("Operation successfully finished".success);
         }
     }
 };

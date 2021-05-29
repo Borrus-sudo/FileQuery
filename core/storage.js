@@ -56,5 +56,8 @@ module.exports = {
     },
     returnOption(propertyName) {
         return options[propertyName]
+    },
+    returnConfig() {
+        return options;
     }
 }

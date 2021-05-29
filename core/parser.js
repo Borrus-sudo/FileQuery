@@ -50,6 +50,8 @@ function parser(command) {
         });
         return tokens;
     }
+
+    function resolveError() {}
     switch (command[0]) {
         case "introduce":
             {
@@ -238,7 +240,7 @@ function parser(command) {
                     type: "Error",
                     kind: "InvalidNumberofArguments",
                     command: command[0],
-                    errorMessage: `No argument provided to the ${command[i]}command `
+                    errorMessage: `No argument provided to the to command `
                 }
             }
             return {
@@ -246,6 +248,10 @@ function parser(command) {
                 directories,
                 baseDirectory,
                 to
+            }
+        case "give":
+            return {
+                type: "ReturnConfigCommand"
             }
         default:
             return {
