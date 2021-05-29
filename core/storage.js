@@ -1,19 +1,11 @@
 const fs = require("fs");
 const os = require("os");
-let dotFileLocation;
+const dotFileLocation = path.join(process.env.HOME, '.file-query')
 let options = {
     "curr_dir": "None set",
     "alias": []
 };
-switch (os.platform()) {
-    case "win32":
-        dotFileLocation = "C:\\Users\\Jinmay\\.file-query";
-        break;
 
-    default:
-        dotFileLocation = "none";
-        break;
-}
 //Default Stuff for updating options or creating a dotfile with default options if none created 
 (() => {
     const checkPurity = (obj) => {

@@ -50,7 +50,7 @@ const commands = {
         async execute(data) {
             const isFileRegex = /(.*?)\.(.*?)$/;
             for (let directory of data.directories) {
-                const resolvedPath = path.resolve(data.baseDirectory, directory);
+                const resolvedPath = path.join(data.baseDirectory, directory);
                 if (!fs.existsSync(directory)) {
                     if (isFileRegex.test(resolvedPath)) {
                         fs.writeFileSync(resolvedPath, "");
@@ -105,7 +105,7 @@ const commands = {
         execute(data) {
             let isError = false;
             for (let directory of data.directories) {
-                const resolvedPath = path.resolve(data.baseDirectory, directory);
+                const resolvedPath = path.join(data.baseDirectory, directory);
                 if (fs.existsSync(resolvedPath)) {
                     if (fs.existsSync(directory))
                         fs.copyFileSync(resolvedPath, path.resolve(data.to, directory));
