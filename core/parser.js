@@ -176,9 +176,30 @@ function parser(command) {
                 type: "SelectCommand"
             }
         case "cv":
+            const directories = [];
+            if (command.length < 3) {
+                return {
+                    type: "Error",
+                    kind: "InvalidNumberOfArguments",
+                    command: command[0],
+                    errorMessage: `Not enough arguments provided to the ${ command[0] } command `
+                }
+            }
+            for (let i = 1; i < command.length; i++) {
+                const result = resolveArraySyntax(command[i]);
+                if (result === "SimplyAdd") {
+                    command[i] = resolveSpecialTokens([command[i]])[0];
+                    directories.push(result);
+                } else {
+                    result.splice(0, 1);
+                    const toPush = resolveSpecialTokens(result);
+                    directories.push(...toPush);
+                }
 
+            }
             return {
-                type: "CopyPasteCommand"
+                type: "CopyPasteCommand",
+                directories
             }
         default:
             return {
