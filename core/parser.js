@@ -58,7 +58,7 @@ function parser(command) {
                 return {
                     type: "IntroduceCommand",
                     command: command[0],
-                    message: `Hi I am FileQuery to help you manage you files seemlessly `,
+                    message: `Hi I am FileQuery to help you manage you files seamlessly `,
                 }
             }
         case "set":
