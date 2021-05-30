@@ -114,7 +114,7 @@ const commands = {
                 const portions = directory.split("/");
                 const to = path.resolve(data.to, portions[portions.length - 1]);
                 if (fs.existsSync(from)) {
-                    if (fs.existsSync(data.to)) {
+                    if (fs.existsSync(to)) {
                         if (fs.statSync(from).isFile())
                             fs.copyFileSync(from, to);
                         else
