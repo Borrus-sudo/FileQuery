@@ -184,32 +184,31 @@ function parser(command) {
             return {
                 type: "SelectCommand"
             }
-        case "cv":
-            const directories = [];
-            let baseDirectory = cwd;
-            const tokens = ["in", "to"];
-            let to = "none";
-            if (command.length < 2) {
-                return {
-                    type: "Error",
-                    kind: "InvalidNumberOfArguments",
-                    command: command[0],
-                    errorMessage: `Not enough arguments provided to the ${ command[0] } command `
-                }
-            }
-            for (let i = 1; i < command.length; i++) {
-                if (!tokens.includes(command[i].toLowerCase())) {
-                    const result = resolveArraySyntax(command[i]);
-                    if (result === "SimplyAdd") {
-                        command[i] = resolveSpecialTokens([command[i]])[0];
-                        directories.push(command[i]);
-                    } else {
-                        result.splice(0, 1);
-                        const toPush = resolveSpecialTokens(result);
-                        directories.push(...toPush);
+        case "del":
+            {
+                const directories = [];
+                let baseDirectory = cwd;
+                const tokens = ["in"];
+                if (command.length < 2) {
+                    return {
+                        type: "Error",
+                        kind: "InvalidNumberOfArguments",
+                        command: command[0],
+                        errorMessage: `Not enough arguments provided to the ${ command[0] } command `
                     }
-                } else {
-                    if (command[i].toLowerCase() === tokens[0]) {
+                }
+                for (let i = 1; i < command.length; i++) {
+                    if (!tokens.includes(command[i].toLowerCase())) {
+                        const result = resolveArraySyntax(command[i]);
+                        if (result === "SimplyAdd") {
+                            command[i] = resolveSpecialTokens([command[i]])[0];
+                            directories.push(command[i]);
+                        } else {
+                            result.splice(0, 1);
+                            const toPush = resolveSpecialTokens(result);
+                            directories.push(...toPush);
+                        }
+                    } else {
                         baseDirectory = command[i + 1] || "Error";
                         if (baseDirectory === "Error") {
                             return {
@@ -220,38 +219,91 @@ function parser(command) {
                             }
                         }
                         baseDirectory = resolveSpecialTokens([baseDirectory])[0];
-                    } else {
-                        to = command[i + 1] || "Error";
-                        if (to === "Error") {
-                            return {
-                                type: "Error",
-                                kind: "InvalidNumberofArguments",
-                                command: command[0],
-                                errorMessage: `No argument provided to the ${command[i]}command `
-                            }
-                        }
-                        to = resolveSpecialTokens([to])[0];
+                        i++;
                     }
-                    i++;
                 }
-            }
-            if (to === "none") {
                 return {
-                    type: "Error",
-                    kind: "InvalidNumberofArguments",
-                    command: command[0],
-                    errorMessage: `No argument provided to the to command `
+                    type: "DeleteCommand",
+                    directories,
+                    baseDirectory
                 }
             }
-            return {
-                type: "CopyPasteCommand",
-                directories,
-                baseDirectory,
-                to
+        case "cv":
+            {
+                const directories = [];
+                let baseDirectory = cwd;
+                const tokens = ["in", "to"];
+                let to = "none";
+                if (command.length < 2) {
+                    return {
+                        type: "Error",
+                        kind: "InvalidNumberOfArguments",
+                        command: command[0],
+                        errorMessage: `Not enough arguments provided to the ${ command[0] } command `
+                    }
+                }
+                for (let i = 1; i < command.length; i++) {
+                    if (!tokens.includes(command[i].toLowerCase())) {
+                        const result = resolveArraySyntax(command[i]);
+                        if (result === "SimplyAdd") {
+                            command[i] = resolveSpecialTokens([command[i]])[0];
+                            directories.push(command[i]);
+                        } else {
+                            result.splice(0, 1);
+                            const toPush = resolveSpecialTokens(result);
+                            directories.push(...toPush);
+                        }
+                    } else {
+                        if (command[i].toLowerCase() === tokens[0]) {
+                            baseDirectory = command[i + 1] || "Error";
+                            if (baseDirectory === "Error") {
+                                return {
+                                    type: "Error",
+                                    kind: "InvalidNumberofArguments",
+                                    command: command[0],
+                                    errorMessage: `No argument provided to the ${command[i]}command `
+                                }
+                            }
+                            baseDirectory = resolveSpecialTokens([baseDirectory])[0];
+                        } else {
+                            to = command[i + 1] || "Error";
+                            if (to === "Error") {
+                                return {
+                                    type: "Error",
+                                    kind: "InvalidNumberofArguments",
+                                    command: command[0],
+                                    errorMessage: `No argument provided to the ${command[i]}command `
+                                }
+                            }
+                            to = resolveSpecialTokens([to])[0];
+                        }
+                        i++;
+                    }
+                }
+                if (to === "none") {
+                    return {
+                        type: "Error",
+                        kind: "InvalidNumberofArguments",
+                        command: command[0],
+                        errorMessage: `No argument provided to the to command `
+                    }
+                }
+                return {
+                    type: "CopyPasteCommand",
+                    directories,
+                    baseDirectory,
+                    to
+                }
             }
         case "give":
+            {
+                return {
+                    type: "ReturnConfigCommand"
+                }
+            }
+        case "help":
             return {
-                type: "ReturnConfigCommand"
+                type: "HelpCommand",
             }
         default:
             return {

@@ -43,12 +43,12 @@ const commands = {
     "IntroduceCommand": {
         execute(data) {
             console.log(introHeading);
-            console.log(data.message);
+            console.log(data.message.info);
         }
     },
     "Error": {
         execute(data) {
-            console.log(data.errorMessage);
+            console.log(data.errorMessage.error);
         },
     },
     "CreateCommand": {
@@ -94,7 +94,7 @@ const commands = {
                         }
                     });
             }
-            console.log("Operation successfully completed");
+            console.log("Operation successfully completed".success);
         }
     },
     "SetCommand": {
@@ -103,7 +103,7 @@ const commands = {
             for (const pair of pairs) {
                 storage.updateOptions(pair.key, pair.value);
             }
-            console.log(`Operation completed successfully`);
+            console.log(`Operation completed successfully`.success);
         },
     },
     "CopyPasteCommand": {
@@ -124,14 +124,42 @@ const commands = {
                                 cover: true
                             });
                     } else {
+                        isError = true
                         console.log(("The directory " + to + " does not exist").error);
                     }
                 } else {
+                    isError = true;
                     console.log(("The directory " + from + " does not exist").error);
                 }
             }
             if (!isError)
                 console.log("Operation successfully finished".success);
+        }
+    },
+    "DeleteCommand": {
+        execute(data) {
+            let isError = false;
+            for (let directory of data.directories) {
+                const toDelete = path.resolve(data.baseDirectory, directory);
+                if (fs.existsSync(toDelete)) {
+                    if (fs.statSync(toDelete).isFile())
+                        fs.unlinkSync(toDelete);
+                    else
+                        removeDirectory(toDelete);
+                } else {
+                    isError = true;
+                    console.log(("The directory " + toDelete + " does not exist").error);
+                }
+            }
+            if (!isError)
+                console.log("Operation successfully finished".success);
+        }
+
+    },
+    "HelpCommand": {
+        execute(data) {
+            console.log(introHeading);
+            console.log("Available commands:" + "\n" + (["Help (jj help)", "Create(jj create)", "Delete(jj del)", "Set(jj set)", "Introduce(jj introduce)", "CopyPaste(jj cv)"].join("\n")).info);
         }
     },
     "SelectCommand": {
