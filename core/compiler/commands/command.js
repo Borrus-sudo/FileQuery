@@ -111,11 +111,12 @@ const commands = {
             let isError = false;
             for (let directory of data.directories) {
                 const from = path.resolve(data.baseDirectory, directory);
-                const to = path.resolve(data.to, directory);
+                const portions = directory.split("/");
+                const to = path.resolve(data.to, portions[portions.length - 1]);
                 if (fs.existsSync(from)) {
                     if (fs.existsSync(data.to)) {
                         if (fs.statSync(from).isFile())
-                            fs.copyFileSync(resolvedPath, to);
+                            fs.copyFileSync(from, to);
                         else
                             copydir.sync(from, to, {
                                 utimes: true,
