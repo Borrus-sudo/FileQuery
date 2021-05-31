@@ -1,4 +1,5 @@
 const storage = require("./storage");
+const fs = require('fs');
 
 function parser(command) {
     command = command || ["introduce"];
@@ -51,7 +52,13 @@ function parser(command) {
         return tokens;
     }
 
-    function resolveError() {}
+    function resolveAsteriskAndRegex(elems) {
+        elems.forEach((directory) => {
+            if (directory.includes('*')) {
+
+            }
+        });
+    }
     switch (command[0]) {
         case "introduce":
             {
@@ -299,6 +306,50 @@ function parser(command) {
             {
                 return {
                     type: "ReturnConfigCommand"
+                }
+            }
+        case "run":
+            {
+                const tokens = ["in"]
+                let baseDirectory = cwd;
+                const macros = [];
+                if (command.length < 2) {
+                    return {
+                        type: "Error",
+                        kind: "InvalidNumberOfArguments",
+                        command: command[0],
+                        errorMessage: `Not enough arguments provided to the ${ command[0] } command `
+                    }
+                }
+                for (let i = 1; i < command.length; i++) {
+                    if (!tokens.includes(command[i].toLowerCase())) {
+                        const result = resolveArraySyntax(command[i]);
+                        if (result === "SimplyAdd") {
+                            command[i] = resolveSpecialTokens([command[i]])[0];
+                            macros.push(command[i]);
+                        } else {
+                            result.splice(0, 1);
+                            const toPush = resolveSpecialTokens(result);
+                            macros.push(...toPush);
+                        }
+                    } else {
+                        baseDirectory = command[i + 1] || "Error";
+                        if (baseDirectory === "Error") {
+                            return {
+                                type: "Error",
+                                kind: "InvalidNumberofArguments",
+                                command: command[0],
+                                errorMessage: `No argument provided to the ${command[i]}command `
+                            }
+                        }
+                        baseDirectory = resolveSpecialTokens([baseDirectory])[0];
+                        i++;
+                    }
+                }
+                return {
+                    type: "RunMacroCommand",
+                    baseDirectory,
+                    macros
                 }
             }
         case "help":
