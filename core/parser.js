@@ -126,7 +126,7 @@ function parser(command) {
                             const parts = pair.value.split('-');
                             parts[0] = path.resolve(cwd, parts[0]);
                             parts[0] = resolveSpecialTokens([parts[0]])[0];
-                            pair.value = parts.join ``;
+                            pair.value = parts.join `-`;
                         }
                     } else {
                         pair.value = resolveSpecialTokens([pair.value])[0];
