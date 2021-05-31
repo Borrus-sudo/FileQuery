@@ -5,9 +5,6 @@ const ask = require("inquirer");
 const exec = require("child_process").execSync;
 const copydir = require('copy-dir');
 const colors = require("colors");
-const {
-    cwd
-} = require("process");
 const removeDirectory = (path) => {
     if (fs.existsSync(path)) {
         const files = fs.readdirSync(path) || [];
@@ -19,7 +16,10 @@ const removeDirectory = (path) => {
             }
         })
     }
-    fs.rmdirSync(path);
+    if (process.cwd() !== path) {
+        fs.rmdirSync(path);
+    }
+
 }
 
 
@@ -65,7 +65,7 @@ const commands = {
                     } else {
                         fs.mkdirSync(resolvedPath);
                     }
-                } else {
+                } else if (isFileRegex.test(resolvedPath)) {
                     const {
                         override
                     } = await ask.prompt([{
@@ -75,27 +75,25 @@ const commands = {
                         default: false
                     }]);
                     if (override) {
-                        if (isFileRegex.test(directory)) {
-                            fs.writeFileSync(resolvedPath, "");
-                        } else {
-                            removeDirectory(resolvedPath);
-                            fs.mkdirSync(resolvedPath);
-                        }
+                        fs.writeFileSync(resolvedPath, "");
                     }
                 }
             }
             if (data.via != "none") {
                 if (data.via === "code")
-                    exec(`code .`, data.baseDirectory, (error, stdout, stderr) => {
-                        if (error) {
-                            console.log(`An error occured: ${error.message}`);
-                            return;
-                        }
-                        if (stderr) {
-                            console.log(`An error occured : ${stderr}`);
-                            return;
-                        }
-                    });
+                    exec(`code .`, {
+                            cwd: data.baseDirectory
+                        },
+                        (error, stdout, stderr) => {
+                            if (error) {
+                                console.log(`An error occured: ${error.message}`);
+                                return;
+                            }
+                            if (stderr) {
+                                console.log(`An error occured : ${stderr}`);
+                                return;
+                            }
+                        });
             }
             console.log("Operation successfully completed".success);
         }
@@ -184,11 +182,12 @@ const commands = {
                             encoding: 'utf8',
                             flag: 'r'
                         }).split("\n");
-                        console.log(lines);
                         lines.forEach((line) => {
                             if (!isError)
                                 if (line)
-                                    result = exec(line.trim(), context, (error, stdout, stderr) => {
+                                    exec(line.trim(), {
+                                        cwd: context
+                                    }, (error, stdout, stderr) => {
                                         console.log(stdout);
                                         if (error) {
                                             isError = true;
@@ -200,10 +199,9 @@ const commands = {
                                             console.log(`An error occured : ${stderr}`);
                                             return;
                                         }
-                                        console.log("Finished");
-                                        console.log(stdout);
+                                        // console.log("Finished");
+                                        // console.log(stdout);
                                     });
-                            console.log(result);
                         });
                     }
                 } else {

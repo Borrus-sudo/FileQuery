@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+
 //Dependencies
 const parser = require("./core/parser");
 const {

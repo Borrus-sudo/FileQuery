@@ -35,13 +35,11 @@ function parser(command) {
     function resolveSpecialTokens(tokens) {
         function mapping(token) {
             switch (token) {
-                case "./":
-                    return cwd;
                 case "curr_dir":
                     return storage.returnOption("curr_dir");
                 default:
                     let toReturn = token;
-                    const alisases = (storage.returnOption("alias") || []).map(alias => alias.split("-").reverse());
+                    const alisases = (storage.returnOption("alias") || []).map(alias => alias.split(">").reverse());
                     alisases.forEach(([elem, directory]) => {
                         if (token === elem) {
                             toReturn = directory;
@@ -61,13 +59,7 @@ function parser(command) {
         return tokens;
     }
 
-    function resolveAsteriskAndRegex(elems) {
-        elems.forEach((directory) => {
-            if (directory.includes('*')) {
 
-            }
-        });
-    }
     switch (command[0]) {
         case "introduce":
             {
@@ -123,10 +115,10 @@ function parser(command) {
                                 errorMessage: "Invalid argument provided to the alias command. Missing the '-'"
                             }
                         } else {
-                            const parts = pair.value.split('-');
+                            const parts = pair.value.split('>');
                             parts[0] = path.resolve(cwd, parts[0]);
                             parts[0] = resolveSpecialTokens([parts[0]])[0];
-                            pair.value = parts.join `-`;
+                            pair.value = parts.join `>`;
                         }
                     } else {
                         pair.value = resolveSpecialTokens([pair.value])[0];
