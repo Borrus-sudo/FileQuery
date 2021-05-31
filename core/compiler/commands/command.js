@@ -167,6 +167,21 @@ const commands = {
             console.log("Select Command Called");
         }
     },
+    "RunMacroCommand": {
+        execute(data) {
+            function execute(macro, context) {
+                if (fs.existsSync(macro)) {
+                    const lines = fs.readFileSync(macro).split("\n");
+                    if (fs.existsSync(context)) {
+                        console.log(("The path " + context + " does not exist").error);
+                    }
+                } else {
+                    console.log(("The path " + macro + " does not exist").error);
+                }
+            }
+            console.log(data);
+        }
+    },
     "ReturnConfigCommand": {
         execute(data) {
             console.log(JSON.stringify(storage.returnConfig(), null, 2));

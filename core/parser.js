@@ -32,7 +32,7 @@ function parser(command) {
     }
 
     function resolveSpecialTokens(tokens) {
-        tokens = tokens.map((token) => {
+        function mapping(token) {
             switch (token) {
                 case "./":
                     return cwd;
@@ -47,6 +47,14 @@ function parser(command) {
                         }
                     });
                     return toReturn;
+            }
+        }
+        tokens = tokens.map((token) => {
+            if (!token.includes("/") || token === "./")
+                return mapping(token);
+            else {
+                let parts = token.split("/");
+                return parts.map((part) => mapping(part)).join("/");;
             }
         });
         return tokens;
