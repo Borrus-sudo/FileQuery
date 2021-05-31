@@ -5,6 +5,9 @@ const ask = require("inquirer");
 const exec = require("child_process").execSync;
 const copydir = require('copy-dir');
 const colors = require("colors");
+const {
+    cwd
+} = require("process");
 const removeDirectory = (path) => {
     if (fs.existsSync(path)) {
         const files = fs.readdirSync(path) || [];
@@ -169,17 +172,51 @@ const commands = {
     },
     "RunMacroCommand": {
         execute(data) {
+            let isError = false;
+
             function execute(macro, context) {
                 if (fs.existsSync(macro)) {
-                    const lines = fs.readFileSync(macro).split("\n");
-                    if (fs.existsSync(context)) {
+                    if (!fs.existsSync(context)) {
+                        isError = true;
                         console.log(("The path " + context + " does not exist").error);
+                    } else {
+                        const lines = fs.readFileSync(macro, {
+                            encoding: 'utf8',
+                            flag: 'r'
+                        }).split("\n");
+                        console.log(lines);
+                        lines.forEach((line) => {
+                            if (!isError)
+                                if (line)
+                                    result = exec(line.trim(), context, (error, stdout, stderr) => {
+                                        console.log(stdout);
+                                        if (error) {
+                                            isError = true;
+                                            console.log(`An error occured: ${error.message}`);
+                                            return;
+                                        }
+                                        if (stderr) {
+                                            isError = true;
+                                            console.log(`An error occured : ${stderr}`);
+                                            return;
+                                        }
+                                        console.log("Finished");
+                                        console.log(stdout);
+                                    });
+                            console.log(result);
+                        });
                     }
                 } else {
+                    isError = true;
                     console.log(("The path " + macro + " does not exist").error);
                 }
             }
-            console.log(data);
+            for (let macro of data.macros) {
+                const macroPath = path.resolve(data.cwd, macro);
+                execute(macroPath, data.context);
+            }
+            if (!isError)
+                console.log("Operation suuccessfully finished".success);
         }
     },
     "ReturnConfigCommand": {

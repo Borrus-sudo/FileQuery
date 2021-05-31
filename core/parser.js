@@ -1,5 +1,6 @@
 const storage = require("./storage");
 const fs = require('fs');
+const path = require("path");
 
 function parser(command) {
     command = command || ["introduce"];
@@ -123,7 +124,9 @@ function parser(command) {
                             }
                         } else {
                             const parts = pair.value.split('-');
-                            pair.value = resolveSpecialTokens(parts).join `-`;
+                            parts[0] = path.resolve(cwd, parts[0]);
+                            parts[0] = resolveSpecialTokens([parts[0]])[0];
+                            pair.value = parts.join ``;
                         }
                     } else {
                         pair.value = resolveSpecialTokens([pair.value])[0];
@@ -240,7 +243,7 @@ function parser(command) {
                 return {
                     type: "DeleteCommand",
                     directories,
-                    baseDirectory
+                    baseDirectory,
                 }
             }
         case "cv":
@@ -319,7 +322,7 @@ function parser(command) {
         case "run":
             {
                 const tokens = ["in"]
-                let baseDirectory = cwd;
+                let context = cwd;
                 const macros = [];
                 if (command.length < 2) {
                     return {
@@ -341,8 +344,8 @@ function parser(command) {
                             macros.push(...toPush);
                         }
                     } else {
-                        baseDirectory = command[i + 1] || "Error";
-                        if (baseDirectory === "Error") {
+                        context = command[i + 1] || "Error";
+                        if (context === "Error") {
                             return {
                                 type: "Error",
                                 kind: "InvalidNumberofArguments",
@@ -350,14 +353,15 @@ function parser(command) {
                                 errorMessage: `No argument provided to the ${command[i]}command `
                             }
                         }
-                        baseDirectory = resolveSpecialTokens([baseDirectory])[0];
+                        context = resolveSpecialTokens([context])[0];
                         i++;
                     }
                 }
                 return {
                     type: "RunMacroCommand",
-                    baseDirectory,
-                    macros
+                    context,
+                    macros,
+                    cwd
                 }
             }
         case "help":
